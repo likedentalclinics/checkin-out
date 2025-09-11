@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard In-Out</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .text-green {
+      color: #00cf00;
+      font-weight: bold;
+    }
+    .text-red {
+      color: red;
+      font-weight: bold;
+    }
+    .text-yellow {
+      color: rgb(239, 183, 15);
+      font-weight: bold;
+    }
+    /* Popup background */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    /* Popup content */
+    .popup-content {
+      position: relative;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 90%;
+      max-height: 90%;
+      text-align: center;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    }
+    /* Adjust image size */
+    .popup-content img {
+      max-width: 100%;
+      max-height: calc(100vh - 100px);
+      object-fit: contain;
+    }
+    /* Close button */
+    #closePopup {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-100 text-xs w-full p-5">
+  <div class="container mx-auto">
+  <!-- เนื้อหาหลัก -->
+  <div class="flex mt-4 gap-4">
+    <!-- Sidebar -->
+    <div class="w-1/4 bg-white p-4 rounded shadow">
+      <!-- Filter: ชื่อ -->
+      <div class="mb-4">
+        <label for="filterName" class="block text-sm font-medium text-slate-900">ค้นหาชื่อ</label>
+        <input type="text" id="filterName" autocomplete="off"
+          class="mt-2 block w-full rounded-md border-0 p-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm" />
+      </div>
+      <!-- Filter: เลขประจำตัว -->
+      <div class="mb-4">
+        <label for="filterEmployeeId" class="block text-sm font-medium text-slate-900">เลขประจำตัว</label>
+        <input type="text" id="filterEmployeeId" autocomplete="off"
+          class="mt-2 block w-full rounded-md border-0 p-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm" />
+      </div>
+      <!-- Filter: บันทึก -->
+      <fieldset class="mb-4">
+        <legend class="text-sm font-semibold text-slate-900">บันทึก</legend>
+        <div class="mt-3 space-y-2">
+          <div class="flex items-center gap-x-2">
+            <input id="filterIn" type="checkbox" value="เข้างาน" class="h-4 w-4 text-indigo-600" checked />
+            <label for="filterIn" class="text-sm text-slate-900">เข้างาน</label>
+          </div>
+          <div class="flex items-center gap-x-2">
+            <input id="filterDuring" type="checkbox" value="ระหว่างวัน" class="h-4 w-4 text-indigo-600" checked />
+            <label for="filterDuring" class="text-sm text-slate-900">ระหว่างวัน</label>
+          </div>
+          <div class="flex items-center gap-x-2">
+            <input id="filterOut" type="checkbox" value="ออกงาน" class="h-4 w-4 text-indigo-600" checked />
+            <label for="filterOut" class="text-sm text-slate-900">ออกงาน</label>
+          </div>
+        </div>
+      </fieldset>
+      <!-- Filter: วันที่/เวลา -->
+      <div class="bg-slate-50 p-4 rounded mb-4">
+        <div class="mb-3">
+          <label for="startDate" class="block text-sm font-medium text-slate-900">วันที่เริ่มต้น</label>
+          <input type="date" id="startDate"
+            class="mt-1 block w-full rounded-md border-0 p-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm" />
+        </div>
+        <div class="mb-3">
+          <label for="endDate" class="block text-sm font-medium text-slate-900">วันที่สิ้นสุด</label>
+          <input type="date" id="endDate"
+            class="mt-1 block w-full rounded-md border-0 p-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm" />
+        </div>
+        <div class="mb-3">
+          <label for="startTime" class="block text-sm font-medium text-slate-900">เวลาเริ่มต้น</label>
+          <input type="time" id="startTime"
+            class="mt-1 block w-full rounded-md border-0 p-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm" />
+        </div>
+        <div>
+          <label for="endTime" class="block text-sm font-medium text-slate-900">เวลาสิ้นสุด</label>
+          <input type="time" id="endTime"
+            class="mt-1 block w-full rounded-md border-0 p-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm" />
+        </div>
+      </div>
+      <!-- เลือกคอลัมน์สำหรับส่งออก -->
+      <fieldset class="border p-4 mb-4">
+        <legend class="text-sm font-semibold text-slate-900 mb-2">เลือกคอลัมน์ที่ต้องการส่งออก</legend>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <div>
+            <input type="checkbox" id="colImage" checked />
+            <label for="colImage">รูปภาพ</label>
+          </div>
+          <div>
+            <input type="checkbox" id="colEmployeeId" checked />
+            <label for="colEmployeeId">เลขประจำตัว</label>
+          </div>
+          <div>
+            <input type="checkbox" id="colName" checked />
+            <label for="colName">ชื่อ</label>
+          </div>
+          <div>
+            <input type="checkbox" id="colStatus" checked />
+            <label for="colStatus">บันทึก</label>
+          </div>
+          <div>
+            <input type="checkbox" id="colNote" checked />
+            <label for="colNote">หมายเหตุ</label>
+          </div>
+          <div>
+            <input type="checkbox" id="colDate" checked />
+            <label for="colDate">วันที่</label>
+          </div>
+          <div>
+            <input type="checkbox" id="colTime" checked />
+            <label for="colTime">เวลา</label>
+          </div>
+          <div>
+            <input type="checkbox" id="colLocation" checked />
+            <label for="colLocation">สถานที่</label>
+          </div>
+        </div>
+      </fieldset>
+      <!-- ปุ่มส่งออก -->
+      <div class="flex flex-col space-y-2">
+        <button id="exportTxtBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          ส่งออกเป็น .txt
+        </button>
+        <button id="exportTxtCustomBtn" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+          ส่งออกเป็น .txt (รหัส-วัน/เวลา)
+        </button>
+        <button id="exportCsvBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+          ส่งออกเป็น .csv
+        </button>
+      </div>
+    </div>
+
+    <!-- ส่วนหลักด้านขวา -->
+    <div class="flex-1 flex flex-col gap-4">
+      <!-- ควบคุมการเรียงและจำนวนต่อหน้า -->
+      <div class="bg-white rounded shadow p-4 flex items-center justify-between">
+        <h1 class="text-xl font-bold text-slate-900">Check In-Out</h1>
+        <div class="flex items-center gap-2">
+          <button id="sortDescBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-l">
+            เรียงจากล่าสุด
+          </button>
+          <button id="sortAscBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r">
+            เรียงจากเก่าสุด
+          </button>
+          <select id="rowsPerPage"
+            class="ml-4 block appearance-none bg-white border border-slate-400 hover:border-slate-500 px-4 py-2 rounded shadow leading-tight focus:outline-none">
+            <option value="15">15</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ส่วนแสดงข้อมูลเป็นการ์ด -->
+      <div id="dataList" class="flex-1 flex flex-col gap-3 overflow-auto"></div>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between mt-2">
+        <p id="rowsInfo" class="text-slate-600"></p>
+        <div class="flex space-x-2">
+          <button id="prevPageBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            ก่อนหน้า
+          </button>
+          <button id="nextPageBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            ถัดไป
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup สำหรับรูปภาพ -->
+  <div id="popup" class="popup-overlay">
+    <div class="popup-content">
+      <span id="closePopup" class="cursor-pointer">&times;</span>
+      <img id="popupImage" src="" alt="Image" class="object-cover w-full h-auto" />
+    </div>
+  </div>
+</div>
+  <!-- Script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="config.js"></script>
+  <script>
+
+    let currentPage = 1;
+    let totalPages = 1;
+
+    // ฟังก์ชันแปลงวัน/เวลา
+    function formatDateTime(dateTimeStr) {
+      if (!dateTimeStr) return { date: '', time: '' };
+      let dateObj = new Date(dateTimeStr);
+      if (isNaN(dateObj)) {
+        const [datePart, timePart] = dateTimeStr.split(' ');
+        if (!datePart || !timePart) return { date: '', time: '' };
+        const [d, m, y] = datePart.split('/');
+        const [hh, mm] = timePart.split(':');
+        dateObj = new Date(y, m - 1, d, hh, mm);
+      }
+      const day = ('0' + dateObj.getDate()).slice(-2);
+      const month = ('0' + (dateObj.getMonth() + 1)).slice(-2);
+      const year = dateObj.getFullYear();
+      const hours = ('0' + dateObj.getHours()).slice(-2);
+      const minutes = ('0' + dateObj.getMinutes()).slice(-2);
+      return { date: `${day}-${month}-${year}`, time: `${hours}:${minutes}` };
+    }
+
+    // ดึงข้อมูลจาก Web App
+    async function fetchData() {
+      try {
+        const response = await fetch(WEB_APP_URL);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        console.log("Fetched Data:", data);
+        return data;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        return [];
+      }
+    }
+
+    // กำหนดสีตามสถานะ
+    function getStatusClass(status) {
+      if (status === "เข้างาน") return "text-green";
+      if (status === "ออกงาน") return "text-red";
+      if (status === "ระหว่างวัน") return "text-yellow";
+      return "";
+    }
+
+    // กรองข้อมูลตาม Filter
+    function filterData(data) {
+      const nameFilter = document.getElementById('filterName').value.toLowerCase();
+      const employeeIdFilter = document.getElementById('filterEmployeeId').value;
+      const inFilter = document.getElementById('filterIn').checked;
+      const duringFilter = document.getElementById('filterDuring').checked;
+      const outFilter = document.getElementById('filterOut').checked;
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const startTime = document.getElementById('startTime').value;
+      const endTime = document.getElementById('endTime').value;
+
+      return data.filter((item) => {
+        // item[0]=dateTime, [1]=รูป, [2]=ชื่อ, [3]=รหัส, [4]=สถานะ, [5]=หมายเหตุ, [8]=สถานที่
+        if (!item || item.length < 9) return false;
+        const formatted = formatDateTime(item[0]);
+        const nameMatch = item[2]?.toLowerCase().includes(nameFilter);
+        const empIdMatch = item[3]?.toString().includes(employeeIdFilter);
+        const inMatch = inFilter && item[4] === "เข้างาน";
+        const duringMatch = duringFilter && item[4] === "ระหว่างวัน";
+        const outMatch = outFilter && item[4] === "ออกงาน";
+        const statusMatch = inMatch || duringMatch || outMatch;
+        const dateObj = new Date(formatted.date.split('-').reverse().join('-'));
+        const startObj = startDate ? new Date(startDate) : null;
+        const endObj = endDate ? new Date(endDate) : null;
+        const dateOk = (!startObj || dateObj >= startObj) && (!endObj || dateObj <= endObj);
+        const timeStr = formatted.time;
+        const timeOk = (!startTime || timeStr >= startTime) && (!endTime || timeStr <= endTime);
+        return nameMatch && empIdMatch && statusMatch && dateOk && timeOk;
+      });
+    }
+
+    // ฟังก์ชันสำหรับดึงคอลัมน์ที่เลือกส่งออก (สำหรับ Export)
+    function getSelectedColumns() {
+      const selectedColumns = [];
+      if (document.getElementById('colImage').checked) selectedColumns.push({ index: 1, label: 'รูปภาพ' });
+      if (document.getElementById('colName').checked) selectedColumns.push({ index: 2, label: 'ชื่อ' });
+      if (document.getElementById('colEmployeeId').checked) selectedColumns.push({ index: 3, label: 'เลขประจำตัว' });
+      if (document.getElementById('colStatus').checked) selectedColumns.push({ index: 4, label: 'บันทึก' });
+      if (document.getElementById('colNote').checked) selectedColumns.push({ index: 5, label: 'หมายเหตุ' });
+      if (document.getElementById('colDate').checked) selectedColumns.push({ index: 0, label: 'วันที่' });
+      if (document.getElementById('colTime').checked) selectedColumns.push({ index: 0, label: 'เวลา' });
+      if (document.getElementById('colLocation').checked) selectedColumns.push({ index: 8, label: 'สถานที่' });
+      return selectedColumns;
+    }
+
+    // ฟังก์ชันหลัก: สร้างการ์ดแสดงข้อมูล (UI)
+    function updateTable(data, sortAsc = true, rowsPerPage = parseInt(document.getElementById('rowsPerPage').value, 10)) {
+      const dataList = document.getElementById('dataList');
+      dataList.innerHTML = '';
+      const filteredData = filterData(data.slice(1)); // สมมติ row แรกเป็น header
+      const sortedData = filteredData.sort((a, b) => {
+        const dateTimeA = new Date(a[0]);
+        const dateTimeB = new Date(b[0]);
+        return sortAsc ? dateTimeA - dateTimeB : dateTimeB - dateTimeA;
+      });
+      totalPages = Math.ceil(sortedData.length / rowsPerPage);
+      if (currentPage > totalPages) currentPage = totalPages || 1;
+      const startIndex = (currentPage - 1) * rowsPerPage;
+      const endIndex = currentPage * rowsPerPage;
+      const paginatedData = sortedData.slice(startIndex, endIndex);
+
+      paginatedData.forEach(item => {
+        const formatted = formatDateTime(item[0]);
+        const statusClass = getStatusClass(item[4]);
+
+        // สร้างการ์ด
+        const card = document.createElement('div');
+        card.classList.add('bg-white', 'rounded', 'shadow', 'p-4', 'flex', 'gap-4', 'items-start');
+
+        // รูปภาพ (ซ้าย)
+        const img = document.createElement('img');
+        img.src = item[1];
+        img.alt = "Image";
+        img.classList.add('w-24', 'h-24', 'rounded', 'object-cover', 'cursor-pointer');
+        img.addEventListener('click', () => {
+          document.getElementById('popupImage').src = img.src;
+          document.getElementById('popup').style.display = 'flex';
+        });
+        card.appendChild(img);
+
+        // ข้อมูล (ขวา) แสดงเป็น grid 2 คอลัมน์
+        const infoContainer = document.createElement('div');
+        infoContainer.classList.add('flex', 'flex-col', 'gap-2', 'text-sm', 'w-full');
+        const gridBox = document.createElement('div');
+        gridBox.classList.add('grid', 'grid-cols-2', 'gap-x-4', 'gap-y-2', 'w-full');
+
+        // แถว 1: ชื่อ (ซ้าย), วันที่ (ขวา)
+        const row1_col1 = document.createElement('div');
+        row1_col1.textContent = `ชื่อ: ${item[2] || ''}`;
+        const row1_col2 = document.createElement('div');
+        row1_col2.classList.add('text-right');
+        row1_col2.textContent = `วันที่: ${formatted.date}`;
+
+        // แถว 2: เลขประจำตัว (ซ้าย), เวลา (ขวา)
+        const row2_col1 = document.createElement('div');
+        row2_col1.textContent = `เลขประจำตัว: ${item[3] || ''}`;
+        const row2_col2 = document.createElement('div');
+        row2_col2.classList.add('text-right');
+        row2_col2.textContent = `เวลา: ${formatted.time}`;
+
+        // แถว 3: หมายเหตุ (ซ้าย), สถานะ (ขวา)
+        const row3_col1 = document.createElement('div');
+        row3_col1.textContent = `หมายเหตุ: ${item[5] || ''}`;
+        const row3_col2 = document.createElement('div');
+        row3_col2.classList.add('text-right');
+        row3_col2.innerHTML = `สถานะ: <span class="${statusClass}">${item[4] || ''}</span>`;
+
+        // แถว 4: สถานที่ (เต็ม 2 คอลัมน์)
+        const row4 = document.createElement('div');
+        row4.classList.add('col-span-2');
+        row4.textContent = `สถานที่: ${item[8] || ''}`;
+
+        gridBox.appendChild(row1_col1);
+        gridBox.appendChild(row1_col2);
+        gridBox.appendChild(row2_col1);
+        gridBox.appendChild(row2_col2);
+        gridBox.appendChild(row3_col1);
+        gridBox.appendChild(row3_col2);
+        gridBox.appendChild(row4);
+
+        infoContainer.appendChild(gridBox);
+        card.appendChild(infoContainer);
+        dataList.appendChild(card);
+      });
+
+      document.getElementById('rowsInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+      document.getElementById('prevPageBtn').disabled = (currentPage === 1);
+      document.getElementById('nextPageBtn').disabled = (currentPage === totalPages);
+    }
+
+    // ฟังก์ชัน Export: ส่งออกเป็น .txt โดยใช้คอลัมน์ที่เลือก
+    function exportToTxt(filteredData, selectedColumns) {
+      const txtContent = filteredData.map(row => {
+        return selectedColumns.map(col => {
+          if (col.label === 'วันที่' || col.label === 'เวลา') {
+            const f = formatDateTime(row[0]);
+            return col.label === 'วันที่' ? f.date : f.time;
+          }
+          return row[col.index] || '';
+        }).join('\t');
+      }).join('\n');
+      downloadFile(txtContent, 'data.txt', 'text/plain;charset=utf-8');
+    }
+
+    // ฟังก์ชัน Export: ส่งออก .txt (รหัส-วัน/เวลา)
+    function exportToTxtWithCustomFormat(filteredData) {
+      const header = "รหัสที่เครื่อง\tวัน/เวลา\n";
+      const content = filteredData.map(row => {
+        const f = formatDateTime(row[0]);
+        const employeeId = row[3] || '';
+        const dateTime = `${f.date.split('-').join('/')} ${f.time}`;
+        return `${employeeId}\t${dateTime}`;
+      }).join('\n');
+      const startDate = document.getElementById('startDate').value.split('-').reverse().join('-') || 'start';
+      const endDate = document.getElementById('endDate').value.split('-').reverse().join('-') || 'end';
+      const fileName = `${startDate}_to_${endDate}.txt`;
+      downloadFile(header + content, fileName, 'text/plain;charset=utf-8');
+    }
+
+    // ฟังก์ชัน Export: ส่งออกเป็น .csv โดยใช้คอลัมน์ที่เลือก
+    function exportToCsv(filteredData, selectedColumns) {
+      const csvContent = [
+        selectedColumns.map(col => col.label).join(','), // header
+        ...filteredData.map(row => {
+          return selectedColumns.map(col => {
+            if (col.label === 'วันที่' || col.label === 'เวลา') {
+              const f = formatDateTime(row[0]);
+              return col.label === 'วันที่' ? f.date : f.time;
+            }
+            let cell = row[col.index] || '';
+            if (cell.includes('"')) cell = cell.replace(/"/g, '""');
+            if (cell.includes(',') || cell.includes('"')) cell = `"${cell}"`;
+            return cell;
+          }).join(',');
+        })
+      ].join('\n');
+      const BOM = '\uFEFF';
+      downloadFile(BOM + csvContent, 'data.csv', 'text/csv;charset=utf-8');
+    }
+
+    function downloadFile(content, fileName, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // เมื่อโหลดหน้าเสร็จ
+    document.addEventListener('DOMContentLoaded', async () => {
+      let data = await fetchData();
+      if (!Array.isArray(data) || data.length === 0) {
+        console.error("No data available.");
+        return;
+      }
+      updateTable(data, false);
+      
+      // ปิด Popup เมื่อคลิกที่ปุ่ม X หรือพื้นหลัง
+      document.getElementById('closePopup').addEventListener('click', () => {
+        document.getElementById('popup').style.display = 'none';
+      });
+      document.getElementById('popup').addEventListener('click', (event) => {
+        if (event.target === event.currentTarget) {
+          document.getElementById('popup').style.display = 'none';
+        }
+      });
+
+      // ควบคุมเรียงลำดับ
+      document.getElementById('sortDescBtn').addEventListener('click', () => {
+        currentPage = 1;
+        updateTable(data, false);
+      });
+      document.getElementById('sortAscBtn').addEventListener('click', () => {
+        currentPage = 1;
+        updateTable(data, true);
+      });
+      document.getElementById('rowsPerPage').addEventListener('change', (e) => {
+        currentPage = 1;
+        updateTable(data, true, parseInt(e.target.value, 10));
+      });
+
+      // ตัวกรอง (ทั้ง input และ change)
+      ['filterName','filterEmployeeId','filterIn','filterDuring','filterOut','startDate','endDate','startTime','endTime'].forEach(id => {
+        document.getElementById(id).addEventListener('change', () => { currentPage = 1; updateTable(data); });
+        if (['filterName','filterEmployeeId'].includes(id)) {
+          document.getElementById(id).addEventListener('input', () => { currentPage = 1; updateTable(data); });
+        }
+      });
+
+      // Pagination
+      document.getElementById('prevPageBtn').addEventListener('click', () => {
+        if (currentPage > 1) { currentPage--; updateTable(data); }
+      });
+      document.getElementById('nextPageBtn').addEventListener('click', () => {
+        if (currentPage < totalPages) { currentPage++; updateTable(data); }
+      });
+
+      // ปุ่มส่งออก โดยใช้คอลัมน์ที่เลือก
+      document.getElementById('exportTxtBtn').addEventListener('click', () => {
+        const filteredData = filterData(data.slice(1));
+        const selectedCols = getSelectedColumns();
+        exportToTxt(filteredData, selectedCols);
+      });
+      document.getElementById('exportTxtCustomBtn').addEventListener('click', () => {
+        const filteredData = filterData(data.slice(1));
+        exportToTxtWithCustomFormat(filteredData);
+      });
+      document.getElementById('exportCsvBtn').addEventListener('click', () => {
+        const filteredData = filterData(data.slice(1));
+        const selectedCols = getSelectedColumns();
+        exportToCsv(filteredData, selectedCols);
+      });
+    });
+  </script>
+</body>
+</html>

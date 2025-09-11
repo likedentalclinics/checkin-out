@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ประเมินพนักงาน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    <style>
+        #signatureCanvas {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 100px;
+            touch-action: none; /* Prevent default touch actions that might interfere */
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen">
+    <div class="max-w-md m-auto p-2" style="margin-top: -20px;">
+        <form>
+            <div class="p-8">
+                <div class="mb-5 text-center">
+                    <h2>ประเมินพนักงาน</h2>
+                    <div class="mx-auto w-full text-slate-500 text-xs text-center mt-1">ข้อมูลถือเป็นความลับ หากตรวจพบว่าผู้ที่ไม่ใช่ทันตแพทย์กรอกแบบฟอร์มนี้ บริษัทจะไล่ออกทันทีโดยไม่จ่ายค่าชดเชย</div>
+                </div>
+                <div class="flex flex-col">
+                    <div class="mb-4">
+                        <input type="text"
+                            class="input-field w-full  bg-slate-200 p-2 text-slate-500 text-sm text-center rounded-lg"
+                            id="userlineId" placeholder="lineId" name="userlineId" readonly>
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg"
+                            id="nameId" placeholder="ชื่อทันตแพทย์" name="nameId" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="area" class="block text-sm font-medium text-gray-700 mb-1">สาขา</label>
+                        <select id="area" name="area"
+                            class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" required>
+                            <option value="" disabled selected>เลือกสาขา</option>
+                            <option value="รังสิต">รังสิต</option>
+                            <option value="พระราม9">พระราม9</option>
+                            <option value="สีลม">สีลม</option>
+                            <option value="บางนา">บางนา</option>
+                            <option value="ลาดพร้าว107">ลาดพร้าว107</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="assist1" class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ช่วยที่ทำงานดี, ไม่ต้องใส่ชื่อผู้ช่วยที่ไม่ดีควรปรับปรุง, ถ้าไม่ดีทั้ง 2คนให้ข้ามคำถามทั้ง 2 ข้อ </label>
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg"
+                            id="assist1" placeholder="ผู้ช่วยที่ชอบคนที่ 1" name="assist1">
+                    </div>
+                    <div class="mb-4">
+                        <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg"
+                            id="keynumberId" placeholder="ผู้ช่วยที่ชอบคนที่ 2" name="keynumberId">
+                    </div>
+                    <div class="mb-4">
+                        <input type="checkbox" id="assist2OtherRoom" name="assist2OtherRoom"
+                            class="mr-2 leading-tight">
+                        <label for="assist2OtherRoom" class="text-sm font-medium text-gray-700">ผู้ช่วยที่ชอบคนที่ 2
+                            มีหน้าที่ช่วยห้องอื่นด้วย</label>
+                    </div>
+                    <div class="mb-6">
+                        <label for="signatureCanvas" class="block text-sm font-medium text-gray-700 mb-1">ลายเซ็น</label>
+                        <canvas id="signatureCanvas" class="w-full border border-slate-300 rounded-lg"></canvas>
+                        <button type="button" class="mt-2 text-sm text-red-500 hover:underline" id="clearSignature">เคลียร์ลายเซ็น</button>
+                        <input type="hidden" id="signatureData" name="signatureData">
+                    </div>
+                </div>
+                <button type="button" id="submitBtn"
+                    class="bg-slate-800 text-center w-full text-white py-4 px-4 rounded-lg hover:bg-blue-700">บันทึกข้อมูล</button>
+            </div>
+        </form>
+    </div>
+    <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <script src="config.js"></script>
+    <script>
+        // ฟังก์ชันเริ่มต้น LIFF SDK เมื่อโหลดหน้าเว็บ
+        window.onload = function () {
+            initializeLiff().then(initializeSignaturePad); // เรียก initializeSignaturePad หลัง initializeLiff เสร็จ
+        };
+
+        // ฟังก์ชันสำหรับเริ่มต้น LIFF SDK
+        async function initializeLiff() {
+            await liff.init({ liffId: `${'2007047383-9n1A0g3Y'}` });
+
+            if (liff.isLoggedIn()) {
+                getUserProfile();
+            } else {
+                liff.login();
+            }
+        }
+
+        // ฟังก์ชันสำหรับดึงข้อมูลโปรไฟล์ของผู้ใช้จาก LINE
+        async function getUserProfile() {
+            try {
+                const profile = await liff.getProfile();
+                document.getElementById('userlineId').value = profile.userId;
+            } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์:', error);
+            }
+        }
+
+        async function sendFlexMessage() {
+            const flexMessage = {
+                type: 'flex',
+                altText: 'ประเมินพนักงาน',
+                contents: {
+                    type: 'bubble',
+                    styles: {
+                        header: { backgroundColor: '#FFFFFF' },
+                        body: { backgroundColor: '#FFFFFF' },
+                        footer: { backgroundColor: '#FFFFFF' }
+                    },
+                    header: {
+                        type: 'box',
+                        layout: 'horizontal',
+                        contents: [
+                            {
+                                type: 'text',
+                                text: 'ประเมินพนักงานสำเร็จ',
+                                weight: 'bold',
+                                size: 'md',
+                                color: '#000000',
+                                flex: 1
+                            }
+                        ]
+                    },
+                    body: {
+                        type: 'box',
+                        layout: 'vertical',
+                        contents: [
+                            {
+                                type: 'box',
+                                layout: 'horizontal',
+                                margin: 'md',
+                                contents: [
+                                    {
+                                        type: 'image',
+                                        url: 'https://img.icons8.com/?size=100&id=zxB19VPoVLjK&format=png&color=000000',
+                                        size: 'xs',
+                                        aspectRatio: '1:1'
+                                    },
+                                    {
+                                        type: 'text',
+                                        text: 'ชื่อทันตแพทย์',
+                                        size: 'sm',
+                                        color: '#555555',
+                                        flex: 3,
+                                        gravity: 'center',
+                                        margin: 'md'
+                                    },
+                                    {
+                                        type: 'text',
+                                        text: document.getElementById('nameId').value,
+                                        size: 'sm',
+                                        color: '#111111',
+                                        align: 'end',
+                                        flex: 5,
+                                        gravity: 'center'
+                                    }
+                                ]
+                            },
+                            {
+                                type: 'separator',
+                                margin: 'md'
+                            },
+                            {
+                                type: 'box',
+                                layout: 'horizontal',
+                                margin: 'md',
+                                contents: [
+                                    {
+                                        type: 'image',
+                                        url: 'https://img.icons8.com/?size=100&id=22127&format=png&color=000000',
+                                        size: 'xs',
+                                        aspectRatio: '1:1'
+                                    },
+                                    {
+                                        type: 'text',
+                                        text: 'สาขา',
+                                        size: 'sm',
+                                        color: '#555555',
+                                        flex: 3,
+                                        gravity: 'center',
+                                        margin: 'md'
+                                    },
+                                    {
+                                        type: 'text',
+                                        text: document.getElementById('area').value,
+                                        size: 'sm',
+                                        color: '#111111',
+                                        align: 'end',
+                                        flex: 5,
+                                        gravity: 'center'
+                                    }
+                                ]
+                            },
+                            {
+                                type: 'separator',
+                                margin: 'md'
+                            },
+                            {
+                                type: 'box',
+                                layout: 'horizontal',
+                                margin: 'md',
+                                contents: [
+                                    {
+                                        type: 'image',
+                                        url: 'https://img.icons8.com/?size=100&id=33196&format=png&color=000000',
+                                        size: 'xs',
+                                        aspectRatio: '1:1'
+                                    },
+                                    {
+                                        type: 'text',
+                                        text: 'ลายเซ็น',
+                                        size: 'sm',
+                                        color: '#555555',
+                                        flex: 3,
+                                        gravity: 'center',
+                                        margin: 'md'
+                                    },
+                                    {
+                                        type: 'text',
+                                        text: document.getElementById('signatureData').value ? 'มีลายเซ็น' : 'ไม่มีลายเซ็น',
+                                        size: 'sm',
+                                        color: '#111111',
+                                        align: 'end',
+                                        flex: 5,
+                                        gravity: 'center'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            };
+
+            await liff.sendMessages([flexMessage]);
+        }
+
+        // กำหนดตัวแปรสำหรับใช้ในฟังก์ชันต่างๆ
+        let url = 'https://script.google.com/macros/s/AKfycbzSerwuPr3tV_kb_bWIayfabD_wCVk_iSVj0gjyBjeek70aeEtIK3aTiHh17VZD0Gtq/exec';
+        let userlineIdInput = document.getElementById("userlineId");
+        let nameIdInput = document.getElementById("nameId");
+        let keynumberIdInput = document.getElementById("keynumberId");
+        let submitBtn = document.getElementById("submitBtn");
+
+        // Signature Pad functionality
+        let signaturePad = null;
+        const signatureCanvas = document.getElementById('signatureCanvas');
+        const clearSignatureButton = document.getElementById('clearSignature');
+        const signatureDataInput = document.getElementById('signatureData');
+
+        function initializeSignaturePad() {
+            if (signatureCanvas) {
+                signaturePad = new SignaturePad(signatureCanvas, {
+                    penColor: 'rgb(0, 0, 0)' // กำหนดสีของปากกา (ถ้าต้องการ)
+                });
+
+                clearSignatureButton.addEventListener('click', function () {
+                    signaturePad.clear();
+                    signatureDataInput.value = '';
+                });
+
+                // Save signature data to hidden input when submit button is clicked
+                submitBtn.addEventListener('click', function() {
+                    if (!signaturePad.isEmpty()) {
+                        signatureDataInput.value = signaturePad.toDataURL();
+                    }
+                });
+            }
+        }
+
+        // ฟังก์ชันสำหรับตรวจสอบการกรอกข้อมูลในฟิลด์ที่จำเป็น
+        function validateForm() {
+            const userlineId = userlineIdInput.value.trim();
+            const nameId = nameIdInput.value.trim();
+            const area = document.getElementById("area").value;
+            const assist1 = document.getElementById("assist1").value.trim(); // Get value of new field
+
+            return userlineId !== '' && nameId !== '' && area !== '' && !signaturePad.isEmpty();
+        }
+
+        // เพิ่ม event listener สำหรับปุ่มบันทึกข้อมูล
+        submitBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            if (!validateForm()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'กรุณากรอกข้อมูลและเซ็นลายเซ็นให้ครบถ้วน.',
+                });
+                return;
+            }
+
+            const isConfirmed = await showConfirmationDialog();
+
+            if (isConfirmed) {
+                submitBtn.disabled = true;
+
+                try {
+                    const signatureData = signaturePad.toDataURL();
+                    const obj = {
+                        userlineId: userlineIdInput.value,
+                        nameId: nameIdInput.value,
+                        area: document.getElementById("area").value,
+                        keynumberId: document.getElementById("keynumberId").value, // Include keynumberId
+                        signature: signatureData,
+                        assist1: document.getElementById("assist1").value, // Include the new field value
+                        assist2OtherRoom: document.getElementById("assist2OtherRoom").checked // Include the checkbox value
+                    };
+
+                    Swal.fire({
+                        title: '<div class="text-md">กำลังบันทึก, รอสักครู่...</div>',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        html: '<div class="swal2-loading"></div>',
+                        onBeforeOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj)
+                    });
+
+                    let data = await response.text();
+
+                    Swal.fire({
+                        title: 'สำเร็จ!',
+                        text: 'บันทึกข้อมูลของคุณเรียบร้อย!',
+                        icon: 'success',
+                        confirmButtonText: 'ปิด',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            liff.closeWindow();
+                        }
+                    });
+                    sendFlexMessage();
+                    console.log(data);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'เกิดข้อผิดพลาดขณะส่งข้อมูล.',
+                    });
+
+                    console.error(error);
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            } else {
+                Swal.fire('Submission Canceled', 'ข้อมูลของคุณไม่ได้ถูกส่ง.', 'info');
+            }
+        });
+
+        async function showConfirmationDialog() {
+            const confirmation = await Swal.fire({
+                title: 'ยืนยันการส่งข้อมูล',
+                text: 'แน่ใจ ว่าคุณกำลังส่งข้อมูล?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ใช่, ส่งข้อมูล!',
+                cancelButtonText: 'ไม่, ยกเลิก'
+            });
+
+            return confirmation.isConfirmed;
+        }
+    </script>
+</body>
+
+</html>
