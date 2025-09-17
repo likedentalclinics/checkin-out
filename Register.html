@@ -48,7 +48,6 @@
                             id="nameId" placeholder="ชื่อ-สกุล" name="nameId" required>
                     </div>
                     <div class="mb-4">
-                        <!-- ฟิลด์สำหรับใส่เลข ท. -->
                         <input type="text" class="input-field w-full border border-slate-300 p-2 text-md rounded-lg"
                             id="keynumberId" placeholder="เลขประจำตัว" name="keynumberId" required>
                     </div>
@@ -56,7 +55,7 @@
                         <select id="keynumber2Id" name="keynumber2Id"
                             class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" required>
                             <option value="" disabled selected>ตำแหน่ง?</option>
-                            <option value="ผช">ผู้ช่วยทันตแพทย์</option>
+                            <option value="ผช">ผู้ช่วยทันตแพทย์/ แม่บ้าน</option>
                             <option value="คต">เคาเตอร์</option>
                         </select>
                     </div>
@@ -68,7 +67,8 @@
                         <select id="branchId" name="branchId"
                             class="input-field w-full border border-slate-300 p-2 text-md rounded-lg" required>
                             <option value="" disabled selected>สาขา?</option>
-                            <option value="รังสิต">รังสิต</option>
+                            <option value="สีลม">สีลม</option>
+                            <option value="บางนา">บางนา</option>
                         </select>
                     </div>                   
                     <div class="mb-4">
@@ -223,7 +223,7 @@
                                     },
                                     {
                                         type: 'text',
-                                        text: 'เลข ท.',
+                                        text: 'เลขปรจำตัว',
                                         size: 'sm',
                                         color: '#555555',
                                         flex: 3,
