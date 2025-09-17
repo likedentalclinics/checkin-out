@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>สำหรับ ผจก</title>
+  <title>สำหรับ ผจกสีลม</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
@@ -90,7 +90,7 @@
   <script src="config.js"></script>
 
   <script>
-    const SWAP_APP_URL = "https://script.google.com/macros/s/AKfycbyUr6fr1UXy8HvvM_3hMFP_VD0iZ2DVCnRNPHxFeEwDKixOcUlMShRmrAv-i0nW_-wR/exec";
+    const SWAP_APP_URL = "https://script.google.com/macros/s/AKfycbzwzh2deVPd5nBGpOFOPrzLhCo0tFTTKPACaTw2mRGRaZUAb9XfW8Q5fEkW1wmSduYjTw/exec";
     // เริ่มการทำงานเมื่อโหลดหน้าเว็บ
     window.onload = async function () {
       await initializeLiff();
@@ -154,7 +154,7 @@
 
                 if (data.success && data.userRole) {
                     displayCurrentUserProfile(data.userRole);
-                    if (data.userRole[4] === 'ผจก') { // ตรวจสอบ roleId (Column D ของ Sheet)
+                    if (data.userRole[4] === 'ผจกสีลม') { // ตรวจสอบ roleId (Column D ของ Sheet)
                         await fetchEmployeeData(); // ถ้าเป็น ผจก ให้ดึงข้อมูลพนักงาน
                     } else {
                         // ไม่ใช่ ผจก ให้แสดงข้อความและซ่อนฟอร์ม
@@ -346,7 +346,7 @@
       const offDateIdValue = offDateId.value.trim();
       const roleIdValue = roleId.value.trim(); // ตำแหน่งของผู้จัดการที่กรอกข้อมูล
 
-     if (selectedEmployeeName === '' || selectedEmployeeEmail === '' || comeDateIdValue === '' || offDateIdValue === '' || roleIdValue !== 'ผจก') {
+     if (selectedEmployeeName === '' || selectedEmployeeEmail === '' || comeDateIdValue === '' || offDateIdValue === '' || roleIdValue !== 'ผจกสีลม') {
        Swal.fire('Validation Error',`กรุณากรอกข้อมูลให้ครบถ้วนและเลือกพนักงานที่จะสลับวันหยุด`,'error');
         return false;
          }
