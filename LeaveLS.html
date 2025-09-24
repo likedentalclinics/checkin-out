@@ -204,9 +204,9 @@
     const branchId = row[17] || '';
   if (branchId !== 'สีลม') {
     Swal.fire({
-      icon: 'warning',
+      icon: 'error',
       title: 'สาขานี้ไม่สามารถใช้งานฟอร์มได้',
-      text: 'ฟอร์มนี้สำหรับสาขารังสิตเท่านั้น',
+      text: 'ฟอร์มนี้สำหรับสาขารังสีลมเท่านั้น',
       confirmButtonText: 'ปิดหน้าต่าง'
     }).then(() => {
       // ถ้าเปิดใน LIFF
