@@ -65,6 +65,7 @@
         <!-- ฟิลด์ที่ซ่อนอยู่สำหรับเก็บข้อมูลที่ไม่ต้องแสดงผล -->
         <input type="hidden" id="userId" name="userId" />
         <input type="hidden" id="columnAData" name="columnAData" />
+        <input type="hidden" id="branchId" name="branchId" />
       </div>
 
       <div class="switch-field my-6 space-y-4">
@@ -226,6 +227,7 @@
       document.getElementById('columnBData').value = row[2] || '';
       document.getElementById('columnCData').value = row[3] || '';
       document.getElementById('columnDData').value = row[4] || '';
+      document.getElementById('branchId').value = row[19] || '';
     }
 
     // แสดง/ซ่อนหน้าต่างโหลด
@@ -247,6 +249,7 @@
     const url = `${WEB_APP_URL}`;
     const columnBData = document.querySelector("#columnBData");
     const columnCData = document.querySelector("#columnCData");
+    const branchId = document.querySelector("#branchId");
     const jobInput = document.querySelector("#jobInput");
     const noteInput = document.querySelector("#noteInput");
     const todayInput = document.querySelector("#todayInput");
@@ -529,7 +532,8 @@
             lat: latitudeInput.value,
             long: longitudeInput.value,
             address: fullAddressInput.value,
-            user: userId.value
+            user: userId.value,
+            branch: branchId.value,
           };
           fetch(url, {
             method: "POST",
