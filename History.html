@@ -88,7 +88,25 @@
         liff.login();
       }
     }
-
+function checkBranchId(branchId) {
+  if (branchId !== 'สีลม') {
+    Swal.fire({
+      icon: 'error',
+      title: 'สาขานี้ไม่สามารถใช้งานได้',
+      text: 'ฟอร์มนี้สำหรับสาขาสีลมเท่านั้น',
+      confirmButtonText: 'ปิดหน้าต่าง'
+    }).then(() => {
+      // ถ้าเปิดใน LIFF
+      if (window.liff && liff.isInClient && liff.isInClient()) {
+        liff.closeWindow();
+      } else {
+        // ถ้าเป็นเว็บปกติ ซ่อนเนื้อหา
+        document.getElementById('main-info').style.display = 'none';
+        document.querySelector('.overflow-x-auto').style.display = 'none';
+      }
+    });
+  }
+}
     // ฟังก์ชันดึงข้อมูลโปรไฟล์ผู้ใช้
     async function getUserProfile() {
       try {
@@ -118,7 +136,11 @@
           const lastRow = filteredData[filteredData.length - 1];
           document.getElementById('name-info').textContent = lastRow[2];
           document.getElementById('employee-id-info').textContent = lastRow[3];
-          document.getElementById('BranchId').textContent = lastRow[14];
+     const branchId = lastRow[14];
+    document.getElementById('BranchId').textContent = branchId;
+  
+  // ตรวจสอบสาขา
+        checkBranchId(branchId);
         }
 
         buildTable('data-table', filteredData);
