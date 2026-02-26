@@ -32,6 +32,10 @@
       <!-- แสดงข้อมูลหลัก -->
       <div id="main-info" class="bg-slate-100 rounded shadow-sm p-6 mb-6 text-sm flex flex-col space-y-2">
         <div class="flex items-center">
+          <strong>สาขา:</strong>
+          <span id="BranchId" class="font-medium ml-1"></span>
+        </div>
+        <div class="flex items-center">
           <strong>ชื่อ:</strong>
           <span id="name-info" class="font-medium ml-1"></span>
         </div>
@@ -116,6 +120,7 @@
         // แสดงชื่อและเลข ท.จากแถวสุดท้าย
         if (filteredData.length > 0) {
           const lastRow = filteredData[filteredData.length - 1];
+          document.getElementById('BranchId').textContent = lastRow[14];
           document.getElementById('name-info').textContent = lastRow[2];
           document.getElementById('employee-id-info').textContent = lastRow[3];
         }
