@@ -154,19 +154,8 @@
 
                 if (data.success && data.userRole) {
                     displayCurrentUserProfile(data.userRole);
-                    if (data.userRole[4] === 'ผจกสีลม') { // ตรวจสอบ roleId (Column D ของ Sheet)
-                        await fetchEmployeeData(); // ถ้าเป็น ผจก ให้ดึงข้อมูลพนักงาน
-                    } else {
-                        // ไม่ใช่ ผจก ให้แสดงข้อความและซ่อนฟอร์ม
-                        document.querySelector('form').classList.add('hidden');
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'ไม่ได้รับอนุญาต',
-                            text: 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้',
-                            allowOutsideClick: false,
-                            showConfirmButton: false,
-                        });
-                    }
+  
+                    
                 } else {
                     console.log('No user data or role found for userId:', userId);
                     Swal.fire({
