@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>สำหรับ ผจกสีลม</title>
+  <title>สำหรับ ผจก</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
@@ -107,7 +107,7 @@
         dateFormat: "Y-m-d",
         altInput: true,
         altFormat: "d-m-Y",
-        minDate: "2026-01-01",   // เพิ่มบรรทัดนี้
+        minDate: "2025-01-01",   // เพิ่มบรรทัดนี้
         maxDate: "2100-12-31"
 });
     };
@@ -133,35 +133,60 @@
         const userId = profile.userId;
         document.getElementById('userId').value = userId;
         document.getElementById('displayName').value = profile.displayName;
-        await fetchData(userId);
+        await fetchUserDataAndCheckRole(userId);
       } catch (error) {
         console.error('Error getting profile data:', error);
+        Swal.fire({icon: 'error',
+                    title: 'Profile Error',
+                    text: 'ไม่สามารถดึงข้อมูลโปรไฟล์ผู้ใช้ได้ '});
       }
     }
 
     // ฟังก์ชันสำหรับดึงข้อมูลจาก Google Sheets
-    async function fetchData(userId) {
-      showLoading(true);
-      try {
-        const response = await fetch(SWAP_APP_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'fetchUserData', userId: userId })
-        });
-        const data = await response.json();
-        data.sort((a, b) => new Date(b[6]) - new Date(a[6]));
-        const row = data.find(row => row[1] === userId);
-        if (row) {
-          displayCurrentUserProfile(row);
-        } else {
-          console.log('No data found for userId:', userId);
+   async function fetchUserDataAndCheckRole(userId) {
+            showLoading(true);
+            try {
+                const response = await fetch(SWAP_APP_URL, { // ใช้ WEB_APP_URL เดียว
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'fetchUserData', userId: userId }) // ส่ง action: 'fetchUserData'
+                });
+                const data = await response.json();
+
+                if (data.success && data.userRole) {
+                    displayCurrentUserProfile(data.userRole);
+                    if (data.userRole[4] === 'ผจก') { // ตรวจสอบ roleId (Column D ของ Sheet)
+                        await fetchEmployeeData(); // ถ้าเป็น ผจก ให้ดึงข้อมูลพนักงาน
+                    } else {
+                        // ไม่ใช่ ผจก ให้แสดงข้อความและซ่อนฟอร์ม
+                        document.querySelector('form').classList.add('hidden');
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'ไม่ได้รับอนุญาต',
+                            text: 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                        });
+                    }
+                } else {
+                    console.log('No user data or role found for userId:', userId);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ข้อมูลผู้ใช้ไม่พบ',
+                        text: 'ไม่พบข้อมูลโปรไฟล์ของคุณในระบบ',
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching user data or checking role:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Error',
+                    text: 'เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้หรือตรวจสอบบทบาท: ' + error.message,
+                });
+            } finally {
+                showLoading(false);
+            }
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        showLoading(false);
-      }
-    }    
-    
+
     // ฟังก์ชันสำหรับแสดงข้อมูลบนหน้าเว็บ
     function displayCurrentUserProfile(row) {
       //document.getElementById('columnAData').value = row[1] || '';
@@ -321,7 +346,7 @@
       const offDateIdValue = offDateId.value.trim();
       const roleIdValue = roleId.value.trim(); // ตำแหน่งของผู้จัดการที่กรอกข้อมูล
 
-     if (selectedEmployeeName === '' || selectedEmployeeEmail === '' || comeDateIdValue === '' || offDateIdValue === '' || roleIdValue !== 'ผจกสีลม') {
+     if (selectedEmployeeName === '' || selectedEmployeeEmail === '' || comeDateIdValue === '' || offDateIdValue === '' || roleIdValue !== 'ผจก') {
        Swal.fire('Validation Error',`กรุณากรอกข้อมูลให้ครบถ้วนและเลือกพนักงานที่จะสลับวันหยุด`,'error');
         return false;
          }
