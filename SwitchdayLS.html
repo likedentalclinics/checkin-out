@@ -154,7 +154,7 @@
 
                 if (data.success && data.userRole) {
                     displayCurrentUserProfile(data.userRole);
-                    if (data.userRole[4] === 'ผจก') { // ตรวจสอบ roleId (Column D ของ Sheet)
+                    if (data.userRole[4] === 'ผจกสีลม') { // ตรวจสอบ roleId (Column D ของ Sheet)
                         await fetchEmployeeData(); // ถ้าเป็น ผจก ให้ดึงข้อมูลพนักงาน
                     } else {
                         // ไม่ใช่ ผจก ให้แสดงข้อความและซ่อนฟอร์ม
