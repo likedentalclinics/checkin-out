@@ -13,3 +13,4 @@ const LIFF_ID1 = '2008131502-gD2p3mDn'; // LIFF ID history
 const LIFF_ID2 = '2008131502-pM1OBdzw'; // LIFF ID leave
 const LIFF_ID3 = '2008131502-agZLXJRV'; // LIFF ID ot
 const LIFF_ID4 = '2008131502-92nyBXVO'; // LIFF ID register
+const LIFF_ID5 = '2008131502-rw5pzfOO'; // LIFF ID history bangna
