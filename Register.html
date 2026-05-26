@@ -333,6 +333,7 @@
 
         // ฟังก์ชันสำหรับตรวจสอบการกรอกข้อมูลในฟิลด์ที่จำเป็น
         function validateForm() {
+            const fileUploaded = fileInput.files.length > 0;
             const userlineId = userlineIdInput.value.trim();
             const nameId = nameIdInput.value.trim();
             const keynumberId = keynumberIdInput.value.trim();
@@ -343,7 +344,7 @@
             const BeginworkdateId = BeginworkdateIdInput.value.trim();
             const branchId = branchIdInput.value.trim();
            
-            if (userlineId === '' || nameId === '' || keynumberId === '' || keynumber2Id === '' || nicknameId === '' || dayoffId === '' || BeginworkdateId === '' || branchId === '' ) {
+            if (!fileUploaded || userlineId === '' || nameId === '' || keynumberId === '' || keynumber2Id === '' || nicknameId === '' || dayoffId === '' || BeginworkdateId === '' || branchId === '' ) {
                 return false;
             }
 
