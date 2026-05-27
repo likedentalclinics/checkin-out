@@ -121,6 +121,10 @@
         minDate: "2016-01-01",   // เพิ่มบรรทัดนี้
          maxDate: "2100-12-31"
           });
+          if (fileInput.files.length === 0) {
+        submitBtn.disabled = true;
+        }
+        };   
         };
 
         // ฟังก์ชันสำหรับเริ่มต้น LIFF SDK
@@ -325,10 +329,17 @@
                 imgPreview.src = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"; // ภาพเริ่มต้นถ้าไม่มีการอัพโหลดภาพใหม่
             }
         }
-
+        // ปิดปุ่มบันทึกข้อมูลก่อน (หากยังไม่ได้อัปโหลดรูป)
+        submitBtn.disabled = true;
         // เพิ่ม event listener สำหรับการเปลี่ยนแปลงใน input file เพื่อแสดงภาพตัวอย่าง
         fileInput.addEventListener('change', () => {
             previewImage();
+             // เปิดปุ่มเมื่ออัปโหลดรูปแล้ว
+    if (fileInput.files.length > 0) {
+        submitBtn.disabled = false;
+    } else {
+        submitBtn.disabled = true;
+    }
         });
 
         // ฟังก์ชันสำหรับตรวจสอบการกรอกข้อมูลในฟิลด์ที่จำเป็น
@@ -395,25 +406,7 @@
                         Swal.fire('ผิดพลาด', 'กรุณาอัพโหลดรูปภาพก่อนบันทึก', 'error');
             submitBtn.disabled = false;
             return;
-                        // ถ้าไม่มีการอัพโหลดรูปภาพ ใช้ภาพเริ่มต้นแทน
-                        //let response = await fetch("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png");
-                       // let blob = await response.blob();
-                       // let base64 = await getBase64(blob);
 
-                      //  obj = {
-                            //base64: base64,
-                           // type: "image/png",
-                           // name: "Avatar.png",
-                         //   userlineId: userlineIdInput.value,
-                          //  nameId: nameIdInput.value,
-                         //   keynumberId: keynumberIdInput.value,
-                         //   keynumber2Id: keynumber2IdInput.value,
-                         //   nicknameId: nicknameIdInput.value,
-                         //   dayoffId: dayoffIdInput.value,
-                          //  EmailId: EmailIdInput.value,
-                          //  BeginworkdateId: BeginworkdateIdInput.value,
-                          //  branchId: branchIdInput.value
-                       // };
                     }
 
                     Swal.fire({
