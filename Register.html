@@ -175,7 +175,12 @@
          maxDate: "2100-12-31"
           });
           if (!photoCaptured) {
-        submitBtn.disabled = true;
+              Swal.fire({
+                    icon: 'error',
+                    title: 'กรุณาถ่ายรูป',
+                    text: 'กดถ่ายกด pause แล้วปิดแล้วถดถ่าย',
+                });
+        //submitBtn.disabled = true;
         }
         };   
 
