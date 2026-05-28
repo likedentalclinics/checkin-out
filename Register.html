@@ -131,7 +131,7 @@
                 </div>
             <div class="mb-4 flex items-center">
           <input type="checkbox" id="consentCheckbox" class="mr-2" required>
-          <label for="consentCheckbox" class="text-sm text-gray-700">ข้าพเจ้ายินยอม</label>
+          <label for="consentCheckbox" class="text-sm text-gray-700">ข้าพเจ้ายินยอมให้ใช้ข้อมูลที่กรอกไปคำนวณรายรับในแต่ละเดือน หากข้อมูลไม่ครบหรือไม่ถูกต้องสามารถชะลอการรับเงินเดือนได้</label>
             </div>
                 <!-- ปุ่มสำหรับบันทึกข้อมูล -->
                 <button type="button" id="submitBtn"
@@ -444,8 +444,9 @@
             const EmailId = EmailIdInput.value.trim();
             const BeginworkdateId = BeginworkdateIdInput.value.trim();
             const branchId = branchIdInput.value.trim();
+            const Checkbox = document.getElementById('consentCheckbox');
            
-            if (!photoCapturedCheck || userlineId === '' || nameId === '' || keynumberId === '' || keynumber2Id === '' || nicknameId === '' || dayoffId === '' || BeginworkdateId === '' || branchId === '' ) {
+     if (!photoCapturedCheck || userlineId === '' || nameId === '' || keynumberId === '' || keynumber2Id === '' || nicknameId === '' || dayoffId === '' || BeginworkdateId === '' || branchId === '' || !Checkbox.checked) {
                 return false;
             }
 
